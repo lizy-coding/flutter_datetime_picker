@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 import 'package:time_picker/clock_selection.dart';
 
 class DateTimePicker extends StatefulWidget {
@@ -8,11 +9,11 @@ class DateTimePicker extends StatefulWidget {
   final ValueChanged<DateTime> onDateTimeChanged;
 
   const DateTimePicker({
-    super.key,
+    Key? key,
     required this.initialDate,
     required this.initialTime,
     required this.onDateTimeChanged,
-  });
+  }) : super(key: key);
 
   @override
   _DateTimePickerState createState() => _DateTimePickerState();
@@ -31,7 +32,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     _minute = widget.initialTime.minute.toDouble();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  void _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
@@ -53,8 +54,13 @@ class _DateTimePickerState extends State<DateTimePicker> {
     final adjustedDegrees = (degrees + 360) % 360;
 
     setState(() {
-      _hour = (adjustedDegrees / 30).floorToDouble();
-      _minute = ((adjustedDegrees % 30) / 0.5).floorToDouble();
+      double newMinute = (adjustedDegrees / 6).roundToDouble();
+      if (newMinute == 0 && _minute == 59) {
+        _hour = (_hour + 1) % 12; // Increment hour when minute wraps around
+      } else if (newMinute == 59 && _minute == 0) {
+        _hour = (_hour - 1 + 12) % 12; // Decrement hour when minute wraps back
+      }
+      _minute = newMinute;
       _notifyDateTimeChanged();
     });
   }
@@ -67,7 +73,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
         _selectedDate!.day,
         _hour.toInt(),
         _minute.toInt(),
-      );
+      ).toUtc();
       widget.onDateTimeChanged(dateTime);
     }
   }
@@ -78,39 +84,57 @@ class _DateTimePickerState extends State<DateTimePicker> {
       appBar: AppBar(
         title: const Text('Date and Time Picker'),
       ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          // Date Picker
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                _selectedDate == null
-                    ? 'No date selected!'
-                    : 'Selected Date: ${_selectedDate!.toLocal()}'
-                        .split(' ')[0],
-              ),
-              ElevatedButton(
-                onPressed: () => _selectDate(context),
-                child: const Text('Select date'),
-              ),
-            ],
-          ),
-          const SizedBox(width: 20),
-          // Time Picker
-          GestureDetector(
-            onPanUpdate: (details) {
-              RenderBox box = context.findRenderObject() as RenderBox;
-              Offset localPosition = box.globalToLocal(details.globalPosition);
-              _updateTime(localPosition, box.size);
-            },
-            child: CustomPaint(
-              size: const Size(300, 300),
-              painter: ClockSelection(hour: _hour, minute: _minute),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Date Display and Picker
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  _selectedDate == null
+                      ? 'No date selected!'
+                      : 'Selected Date: ${_selectedDate!.toLocal()}'
+                          .split(' ')[0],
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _selectDate,
+                  child: const Text('Select date'),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            // Time Display
+            Text(
+              'Selected Time: ${_hour.toInt().toString().padLeft(2, '0')}:${_minute.toInt().toString().padLeft(2, '0')}',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            // Time Picker
+            GestureDetector(
+              onPanUpdate: (details) {
+                RenderBox box = context.findRenderObject() as RenderBox;
+                Offset localPosition =
+                    box.globalToLocal(details.globalPosition);
+                _updateTime(localPosition, box.size);
+              },
+              onTapUp: (details) {
+                RenderBox box = context.findRenderObject() as RenderBox;
+                Offset localPosition =
+                    box.globalToLocal(details.globalPosition);
+                _updateTime(localPosition, box.size);
+              },
+              child: CustomPaint(
+                size: const Size(200, 200), // Adjusted size for better layout
+                painter: ClockSelection(hour: _hour, minute: _minute),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

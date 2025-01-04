@@ -1,6 +1,6 @@
 name: time_picker
-description: "A new Flutter plugin project."
-version: 0.0.1
+description: "date and clock selecter"
+version: 1.0.0
 homepage:
 
 environment:

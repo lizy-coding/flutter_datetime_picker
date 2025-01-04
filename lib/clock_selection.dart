@@ -22,7 +22,8 @@ class ClockSelection extends CustomPainter {
     canvas.drawCircle(center, radius, paint);
 
     // Draw hour hand
-    final hourAngle = (pi / 6) * hour;
+    final hourAngle =
+        (pi / 6) * hour + (pi / 360) * minute; // Adjust hour hand with minute
     final hourHandLength = radius * 0.5;
     final hourHandOffset = Offset(
       hourHandLength * cos(hourAngle),
@@ -39,8 +40,28 @@ class ClockSelection extends CustomPainter {
     );
     canvas.drawLine(center, center + minuteHandOffset, paint);
 
-    // Draw hour markers
-    for (int i = 1; i <= 12; i++) {
+    // Draw hour markers and Roman numerals
+    final textPainter = TextPainter(
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    const romanNumerals = [
+      'XII',
+      'I',
+      'II',
+      'III',
+      'IV',
+      'V',
+      'VI',
+      'VII',
+      'VIII',
+      'IX',
+      'X',
+      'XI'
+    ];
+
+    for (int i = 0; i < 12; i++) {
       final angle = (pi / 6) * i;
       final markerLength =
           i % 3 == 0 ? 15.0 : 10.0; // Longer markers for 3, 6, 9, 12
@@ -53,6 +74,22 @@ class ClockSelection extends CustomPainter {
         radius * sin(angle),
       );
       canvas.drawLine(center + startOffset, center + endOffset, paint);
+
+      // Draw Roman numerals
+      final numeralOffset = Offset(
+        (radius - 30) * cos(angle),
+        (radius - 30) * sin(angle),
+      );
+      textPainter.text = TextSpan(
+        text: romanNumerals[i],
+        style: TextStyle(color: Colors.black, fontSize: 16),
+      );
+      textPainter.layout();
+      textPainter.paint(
+          canvas,
+          center +
+              numeralOffset -
+              Offset(textPainter.width / 2, textPainter.height / 2));
     }
   }
 
