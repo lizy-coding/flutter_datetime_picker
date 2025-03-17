@@ -1,11 +1,11 @@
 name: time_picker
-description: "date and clock selecter"
+description: 一个功能强大的 Flutter 日期时间选择器插件，支持日期、时间和日期时间的选择。
 version: 1.0.0
-homepage:
+homepage: https://github.com/yourusername/time_picker
 
 environment:
-  sdk: ^3.5.4
-  flutter: '>=3.3.0'
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
@@ -16,7 +16,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -38,8 +38,8 @@ flutter:
       android:
         package: com.example.time_picker
         pluginClass: TimePickerPlugin
-      windows:
-        pluginClass: TimePickerPluginCApi
+      ios:
+        pluginClass: TimePickerPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
