@@ -1,171 +1,198 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
-
+import 'package:provider/provider.dart';
 import 'package:time_picker/clock_selection.dart';
+import 'package:time_picker/time_picker_dialog.dart';
+import 'package:time_picker/date_time_picker_provider.dart';
+import 'package:time_picker/date_time_picker_type.dart';
 
 class DateTimePicker extends StatefulWidget {
   final DateTime initialDate;
   final TimeOfDay initialTime;
   final ValueChanged<DateTime> onDateTimeChanged;
+  final ValueChanged<TimeOfDay> onTimeChanged;
+  final DateTimePickerType type;
 
   const DateTimePicker({
-    Key? key,
+    super.key,
     required this.initialDate,
     required this.initialTime,
     required this.onDateTimeChanged,
-  }) : super(key: key);
+    required this.onTimeChanged,
+    this.type = DateTimePickerType.datetime,
+  });
 
   @override
   _DateTimePickerState createState() => _DateTimePickerState();
 }
 
 class _DateTimePickerState extends State<DateTimePicker> {
-  DateTime? _selectedDate;
-  double _hour = 0;
-  double _minute = 0;
-  String _dateTimeString = '';
-  final TextEditingController _timeController = TextEditingController();
+  late final DateTimePickerProvider _provider;
 
   @override
   void initState() {
     super.initState();
-    _initializeDateTime();
+    _provider = DateTimePickerProvider(type: widget.type);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.initialize(widget.initialDate, widget.initialTime);
+    });
   }
 
-  void _initializeDateTime() {
-    _selectedDate = widget.initialDate;
-    _hour = widget.initialTime.hour.toDouble();
-    _minute = widget.initialTime.minute.toDouble();
-    _updateDateTimeString();
-    _updateTimeController();
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
   }
 
   void _selectDate() async {
+    if (widget.type == DateTimePickerType.time) return;
+    
+    FocusScope.of(context).unfocus();
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _provider.selectedDate ?? DateTime.now(),
       firstDate: DateTime(1980),
       lastDate: DateTime(2101),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: Colors.blue,
+                  onPrimary: Colors.white,
+                ),
+          ),
+          child: child!,
+        );
+      },
     );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        _notifyDateTimeChanged();
-      });
+
+    if (picked != null) {
+      _provider.updateDate(picked);
+      _notifyDateTimeChanged();
     }
   }
 
-  void _updateTimeFromInput() {
-    final timeParts = _timeController.text.split(':');
-    if (timeParts.length == 2) {
-      final int? hour = int.tryParse(timeParts[0]);
-      final int? minute = int.tryParse(timeParts[1]);
-      if (hour != null &&
-          minute != null &&
-          hour >= 0 &&
-          hour < 24 &&
-          minute >= 0 &&
-          minute < 60) {
-        setState(() {
-          _hour = hour.toDouble();
-          _minute = minute.toDouble();
+  void _selectTime() async {
+    if (widget.type == DateTimePickerType.date) return;
+    
+    await showDialog<void>(
+      context: context,
+      builder: (context) => WheelTimePickerDialog(
+        initialTime: TimeOfDay(
+          hour: _provider.hour.toInt(),
+          minute: _provider.minute.toInt(),
+        ),
+        onTimeSelected: (time) {
+          _provider.updateTime(time);
           _notifyDateTimeChanged();
-        });
-      }
-    }
+        },
+      ),
+    );
   }
 
   void _notifyDateTimeChanged() {
-    if (_selectedDate != null) {
-      final dateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        _hour.toInt(),
-        _minute.toInt(),
-      ).toUtc();
-      widget.onDateTimeChanged(dateTime);
-      _updateDateTimeString();
-      _updateTimeController(); // Ensure the time controller is updated
-    }
-  }
+    final normalizedDateTime = _provider.getNormalizedDateTime();
+    final normalizedTime = _provider.getNormalizedTime();
 
-  void _updateDateTimeString() {
-    if (_selectedDate != null) {
-      final dateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        _hour.toInt(),
-        _minute.toInt(),
-      ).toLocal();
-      _dateTimeString = dateTime.toString();
+    if (normalizedDateTime != null) {
+      widget.onDateTimeChanged(normalizedDateTime);
     }
-  }
-
-  void _updateTimeController() {
-    _timeController.text =
-        '${_hour.toInt().toString().padLeft(2, '0')}:${_minute.toInt().toString().padLeft(2, '0')}';
+    
+    if (normalizedTime != null) {
+      widget.onTimeChanged(normalizedTime);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Date and Time Picker'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(child: _buildDateSelector()),
-            const SizedBox(width: 20),
-            Expanded(child: _buildTimeSelector()),
-          ],
+    return ChangeNotifierProvider.value(
+      value: _provider,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_getTitle()),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              if (widget.type != DateTimePickerType.time)
+                Expanded(child: _buildDateSelector()),
+              if (widget.type != DateTimePickerType.date) ...[
+                if (widget.type != DateTimePickerType.time) const SizedBox(width: 20),
+                Expanded(child: _buildTimeSelector()),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  String _getTitle() {
+    switch (widget.type) {
+      case DateTimePickerType.date:
+        return '日期选择器';
+      case DateTimePickerType.time:
+        return '时间选择器';
+      case DateTimePickerType.datetime:
+        return '日期时间选择器';
+    }
+  }
+
   Widget _buildDateSelector() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(
-          _selectedDate == null
-              ? 'No date selected!'
-              : 'Selected Date: ${_selectedDate!.toLocal()}'.split(' ')[0],
-          style: const TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: _selectDate,
-          child: const Text('Select date'),
-        ),
-      ],
+    return Consumer<DateTimePickerProvider>(
+      builder: (context, provider, child) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              provider.selectedDate == null
+                  ? '未选择日期'
+                  : '${provider.selectedDate!.year}年${provider.selectedDate!.month.toString().padLeft(2, '0')}月${provider.selectedDate!.day.toString().padLeft(2, '0')}日',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _selectDate,
+              child: const Text('选择日期'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildTimeSelector() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        TextField(
-          controller: _timeController,
-          decoration: const InputDecoration(
-            labelText: 'Enter time (HH:MM)',
-          ),
-          keyboardType: TextInputType.datetime,
-          onSubmitted: (_) => _updateTimeFromInput(),
-          onEditingComplete: _updateTimeFromInput,
-        ),
-        const SizedBox(height: 20),
-        CustomPaint(
-          size: const Size(200, 200),
-          painter: ClockSelection(hour: _hour, minute: _minute),
-        ),
-      ],
+    return Consumer<DateTimePickerProvider>(
+      builder: (context, provider, child) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: provider.timeController,
+                readOnly: true,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  labelText: '选择时间',
+                  suffixIcon: Icon(Icons.access_time),
+                ),
+                onTap: _selectTime,
+              ),
+            ),
+            const SizedBox(height: 20),
+            CustomPaint(
+              size: const Size(200, 200),
+              painter: ClockSelection(
+                hour: provider.hour,
+                minute: provider.minute,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

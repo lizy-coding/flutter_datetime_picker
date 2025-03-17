@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:time_picker/date_time_picker.dart';
 
@@ -14,7 +15,16 @@ class MyApp extends StatelessWidget {
       home: DateTimePicker(
         initialDate: DateTime.now(),
         initialTime: TimeOfDay.now(),
-        onDateTimeChanged: (dateTime) {},
+        onDateTimeChanged: (dateTime) {
+          if (kDebugMode) {
+            print(dateTime);
+          }
+        },
+        onTimeChanged: (time) {
+          if (kDebugMode) {
+            print(time);
+          }
+        },
       ),
     );
   }
