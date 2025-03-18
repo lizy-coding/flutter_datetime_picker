@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_datetime_picker/channel/time_picker_platform_interface.dart';
-import 'package:flutter_datetime_picker/channel/time_picker_method_channel.dart';
+import 'package:wheel_datetime_picker/channel/time_picker_platform_interface.dart';
+import 'package:wheel_datetime_picker/channel/time_picker_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockTimePickerPlatform

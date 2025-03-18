@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/providers/date_time_picker_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_datetime_picker/widgets/clock_selection.dart';
-import 'package:flutter_datetime_picker/widgets/time_picker_dialog.dart';
-import 'package:flutter_datetime_picker/models/date_time_picker_type.dart';
+import 'package:wheel_datetime_picker/providers/date_time_picker_provider.dart';
+import 'package:wheel_datetime_picker/widgets/clock_selection.dart';
+import 'package:wheel_datetime_picker/widgets/time_picker_dialog.dart';
+import 'package:wheel_datetime_picker/models/date_time_picker_type.dart';
 
 class DateTimePicker extends StatefulWidget {
   final DateTime initialDate;

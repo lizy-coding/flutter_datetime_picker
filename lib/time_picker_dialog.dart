@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/providers/time_picker_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:wheel_datetime_picker/providers/time_picker_provider.dart';
 
 class WheelTimePickerDialog extends StatefulWidget {
   final TimeOfDay initialTime;

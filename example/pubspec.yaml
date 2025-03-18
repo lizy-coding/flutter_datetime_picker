@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_datetime_picker:
+  wheel_datetime_picker:
     path: ../
     # When depending on this package from a real application you should use:
     #   flutter_datetime_picker: ^x.y.z
