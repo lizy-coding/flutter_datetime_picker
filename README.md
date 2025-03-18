@@ -14,6 +14,23 @@
 - 支持屏幕阅读器
 - 完全可自定义的样式
 
+## 项目结构
+
+```
+/flutter_datetime_picker
+├── lib/
+│ ├── widgets/
+│ │ └── time_picker_dialog.dart
+│ └── providers/
+│ └── time_picker_provider.dart
+├── example/
+│ ├── lib/
+│ └── pubspec.yaml
+├── test/
+├── android/
+├── windows/
+└── pubspec.yaml
+```
 
 ## 安装
 
