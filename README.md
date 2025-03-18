@@ -1,3 +1,6 @@
+pub.dev packages
+https://pub.dev/packages/wheel_datetime_picker
+
 # Flutter 日期时间选择器
 
 一个功能强大的 Flutter 日期时间选择器插件，支持日期、时间和日期时间的选择。
