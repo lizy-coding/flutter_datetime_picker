@@ -72,4 +72,4 @@ class ClockSelection extends CustomPainter {
   bool shouldRepaint(ClockSelection oldDelegate) {
     return oldDelegate.hour != hour || oldDelegate.minute != minute;
   }
-} 
+}

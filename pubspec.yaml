@@ -1,7 +1,7 @@
-name: time_picker
+name: flutter_datetime_picker
 description: 一个功能强大的 Flutter 日期时间选择器插件，支持日期、时间和日期时间的选择。
 version: 1.0.0
-homepage: https://github.com/yourusername/time_picker
+homepage: https://github.com/lizy-coding/flutter_datetime_picker
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

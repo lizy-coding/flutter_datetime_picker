@@ -19,8 +19,10 @@ class WheelTimePickerDialog extends StatefulWidget {
 class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
   late final TimePickerProvider _provider;
   TimeOfDay? _tempTime;
-  final FixedExtentScrollController _hourController = FixedExtentScrollController();
-  final FixedExtentScrollController _minuteController = FixedExtentScrollController();
+  final FixedExtentScrollController _hourController =
+      FixedExtentScrollController();
+  final FixedExtentScrollController _minuteController =
+      FixedExtentScrollController();
 
   @override
   void initState() {
@@ -47,6 +49,8 @@ class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
       hour: _provider.hour.toInt(),
       minute: _provider.minute.toInt(),
     );
+    _hourController.jumpToItem(_provider.hour.toInt());
+    _minuteController.jumpToItem(_provider.minute.toInt());
   }
 
   Widget _buildTimeWheel({
@@ -84,7 +88,8 @@ class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
                   child: Text(
                     index.toString().padLeft(2, '0'),
                     style: const TextStyle(fontSize: 20),
-                    semanticsLabel: '$label: ${index.toString().padLeft(2, '0')}',
+                    semanticsLabel:
+                        '$label: ${index.toString().padLeft(2, '0')}',
                   ),
                 );
               },
@@ -115,71 +120,75 @@ class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _provider,
-      child: Dialog(
-        child: Container(
-          width: 300,
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                '选择时间',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      child: Consumer<TimePickerProvider>(
+        builder: (context, provider, child) {
+          return Dialog(
+            child: Container(
+              width: 300,
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildTimeWheel(
-                    controller: _hourController,
-                    itemCount: 24,
-                    onSelectedItemChanged: _provider.updateHour,
-                    onIncrement: _provider.incrementHour,
-                    onDecrement: _provider.decrementHour,
-                    label: '小时',
+                  const Text(
+                    '选择时间',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(':', style: TextStyle(fontSize: 30)),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildTimeWheel(
+                        controller: _hourController,
+                        itemCount: 24,
+                        onSelectedItemChanged: provider.updateHour,
+                        onIncrement: provider.incrementHour,
+                        onDecrement: provider.decrementHour,
+                        label: '小时',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(':', style: TextStyle(fontSize: 30)),
+                      ),
+                      _buildTimeWheel(
+                        controller: _minuteController,
+                        itemCount: 60,
+                        onSelectedItemChanged: provider.updateMinute,
+                        onIncrement: provider.incrementMinute,
+                        onDecrement: provider.decrementMinute,
+                        label: '分钟',
+                      ),
+                    ],
                   ),
-                  _buildTimeWheel(
-                    controller: _minuteController,
-                    itemCount: 60,
-                    onSelectedItemChanged: _provider.updateMinute,
-                    onIncrement: _provider.incrementMinute,
-                    onDecrement: _provider.decrementMinute,
-                    label: '分钟',
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('取消'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          try {
+                            if (_tempTime != null) {
+                              widget.onTimeSelected?.call(_tempTime!);
+                            }
+                            Navigator.of(context).pop();
+                          } catch (e) {
+                            debugPrint('Error returning time: $e');
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: const Text('确定'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('取消'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      try {
-                        if (_tempTime != null) {
-                          widget.onTimeSelected?.call(_tempTime!);
-                        }
-                        Navigator.of(context).pop();
-                      } catch (e) {
-                        debugPrint('Error returning time: $e');
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text('确定'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
-} 
+}

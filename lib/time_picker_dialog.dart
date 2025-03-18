@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/providers/time_picker_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:time_picker/time_picker_provider.dart';
 
 class WheelTimePickerDialog extends StatefulWidget {
   final TimeOfDay initialTime;
@@ -19,8 +19,10 @@ class WheelTimePickerDialog extends StatefulWidget {
 class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
   late final TimePickerProvider _provider;
   TimeOfDay? _tempTime;
-  final FixedExtentScrollController _hourController = FixedExtentScrollController();
-  final FixedExtentScrollController _minuteController = FixedExtentScrollController();
+  final FixedExtentScrollController _hourController =
+      FixedExtentScrollController();
+  final FixedExtentScrollController _minuteController =
+      FixedExtentScrollController();
 
   @override
   void initState() {
@@ -84,7 +86,8 @@ class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
                   child: Text(
                     index.toString().padLeft(2, '0'),
                     style: const TextStyle(fontSize: 20),
-                    semanticsLabel: '$label: ${index.toString().padLeft(2, '0')}',
+                    semanticsLabel:
+                        '$label: ${index.toString().padLeft(2, '0')}',
                   ),
                 );
               },
@@ -182,4 +185,4 @@ class _WheelTimePickerDialogState extends State<WheelTimePickerDialog> {
       ),
     );
   }
-} 
+}

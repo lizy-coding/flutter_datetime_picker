@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:time_picker/date_time_picker.dart';
-
+import 'package:flutter_datetime_picker/date_time_picker.dart';
 void main() {
   runApp(const MyApp());
 }

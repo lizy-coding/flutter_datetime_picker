@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/providers/date_time_picker_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:time_picker/clock_selection.dart';
-import 'package:time_picker/time_picker_dialog.dart';
-import 'package:time_picker/date_time_picker_provider.dart';
-import 'package:time_picker/date_time_picker_type.dart';
+import 'package:flutter_datetime_picker/widgets/clock_selection.dart';
+import 'package:flutter_datetime_picker/widgets/time_picker_dialog.dart';
+import 'package:flutter_datetime_picker/models/date_time_picker_type.dart';
 
 class DateTimePicker extends StatefulWidget {
   final DateTime initialDate;
@@ -45,7 +45,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
   void _selectDate() async {
     if (widget.type == DateTimePickerType.time) return;
-    
+
     FocusScope.of(context).unfocus();
 
     final DateTime? picked = await showDatePicker(
@@ -74,7 +74,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
   void _selectTime() async {
     if (widget.type == DateTimePickerType.date) return;
-    
+
     await showDialog<void>(
       context: context,
       builder: (context) => WheelTimePickerDialog(
@@ -97,7 +97,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     if (normalizedDateTime != null) {
       widget.onDateTimeChanged(normalizedDateTime);
     }
-    
+
     if (normalizedTime != null) {
       widget.onTimeChanged(normalizedTime);
     }
@@ -119,7 +119,8 @@ class _DateTimePickerState extends State<DateTimePicker> {
               if (widget.type != DateTimePickerType.time)
                 Expanded(child: _buildDateSelector()),
               if (widget.type != DateTimePickerType.date) ...[
-                if (widget.type != DateTimePickerType.time) const SizedBox(width: 20),
+                if (widget.type != DateTimePickerType.time)
+                  const SizedBox(width: 20),
                 Expanded(child: _buildTimeSelector()),
               ],
             ],

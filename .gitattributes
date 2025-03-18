@@ -1,0 +1,43 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Dart files
+*.dart text
+*.yaml text
+*.json text
+*.md text
+*.txt text
+
+# Flutter/Dart specific
+*.g.dart text
+*.freezed.dart text
+*.mocks.dart text
+
+# Documentation
+*.md text diff=markdown
+*.txt text
+
+# Graphics
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.svg text
+
+# Scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Configs
+.gitattributes text
+.gitignore text
+.editorconfig text
+*.yml text
+*.yaml text
+*.json text
+*.xml text
+*.properties text
+*.ini text
+*.cfg text
+*.conf text 

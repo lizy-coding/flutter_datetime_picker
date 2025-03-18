@@ -23,7 +23,7 @@
 dependencies:
   flutter:
     sdk: flutter
-  time_picker: ^1.0.0
+  flutter_datetime_picker: ^1.0.0
 ```
 
 ## 使用方法
@@ -31,7 +31,7 @@ dependencies:
 ### 基本用法
 
 ```dart
-import 'package:time_picker/time_picker.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 // 显示日期时间选择器
 showDateTimePicker(

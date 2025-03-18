@@ -1,6 +1,6 @@
-# time_picker_example
+# flutter_datetime_picker
 
-Demonstrates how to use the time_picker plugin.
+Demonstrates how to use the flutter_datetime_picker plugin.
 
 ## Getting Started
 
